@@ -1,4 +1,5 @@
 pub mod check;
+pub mod ldap;
 pub mod manager;
 pub mod proxy;
 
@@ -15,6 +16,7 @@ use either::{
 };
 use figment::providers::{Env, Format, Toml};
 pub use figment::{Figment, value::Value as FigmentValue};
+use ldap::LdapConfig;
 use regex::RegexSet;
 use ruma::{
 	OwnedRoomOrAliasId, OwnedServerName, OwnedUserId, RoomVersionId,
@@ -1124,9 +1126,9 @@ pub struct Config {
 	pub rocksdb_compaction_ioprio_idle: bool,
 
 	/// Enables RocksDB compaction. You should never ever have to set this
-	/// option to false. If you for some reason find yourself needing to use this
-	/// option as part of troubleshooting or a bug, please reach out to us in
-	/// the conduwuit Matrix room with information and details.
+	/// option to false. If you for some reason find yourself needing to use
+	/// this option as part of troubleshooting or a bug, please reach out to us
+	/// in the conduwuit Matrix room with information and details.
 	///
 	/// Disabling compaction will lead to a significantly bloated and
 	/// explosively large database, gradually poor performance, unnecessarily
@@ -1810,6 +1812,17 @@ pub struct Config {
 	#[allow(clippy::zero_sized_map_values)]
 	// this is a catchall, the map shouldn't be zero at runtime
 	catchall: BTreeMap<String, IgnoredAny>,
+
+	#[cfg(not(doctest))]
+	/// Examples:
+	///
+	/// - No LDAP login (default):
+	///
+	///       ldap = "none"
+	///
+	/// default: "none"
+	#[serde(default)]
+	pub ldap: Option<LdapConfig>,
 }
 
 #[derive(Clone, Debug, Deserialize, Default)]
